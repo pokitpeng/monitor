@@ -46,6 +46,10 @@ scrape_configs:
       labels:
         ip: "10.23.80.103"
         alias: slurm-node4
+    - targets: ['10.23.107.71:9100']
+      labels:
+        ip: "10.23.107.71"
+        alias: slurm-node6
     - targets: ['10.23.179.212:9100']
       labels:
         ip: "10.23.179.212"
@@ -96,7 +100,11 @@ scrape_configs:
     - targets: ['10.23.80.103:9256']
       labels:
         ip: "10.23.80.103"
-        alias: slurm-node4    
+        alias: slurm-node4
+    - targets: ['10.23.107.71:9256']
+      labels:
+        ip: "10.23.107.71"
+        alias: slurm-node6 
     - targets: ['10.23.179.212:9256']
       labels:
         ip: "10.23.179.212"
