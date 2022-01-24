@@ -1,0 +1,76 @@
+groups:
+- name: host
+  rules:
+
+  - alert: 节点宕机
+    expr: up == 0
+    for: 15s
+    labels:
+      severity: emergency
+    annotations:
+      summary: "Instance {{ $labels.instance }} down"
+      description: "{{ $labels.instance }}: {{ $labels.job }} 已经宕机超过15秒"
+  
+  - alert: 内存使用超过90%
+    expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 90
+    for: 15s
+    labels:
+      severity: critical
+    annotations:
+      summary: "{{$labels.instance}}: 检测到内存使用率高"
+      description: "{{$labels.instance}}: 内存已使用 {{$value}}, above 90%"
+
+  - alert: CPU使用超过90%
+    expr: 100 * (1 - avg(irate(node_cpu_seconds_total{mode="idle"}[2m])) by(instance)) > 90
+    for: 15s
+    labels:
+      serverity: warning
+    annotations:
+      summary: "{{$labels.instance}}: 检测到CPU使用率高"
+      description: "{{$labels.instance}}: CPU已使用 {{$value}}, above 90%"
+
+  - alert: 磁盘已使用超过80%
+    expr: 100 * (node_filesystem_size_bytes{fstype=~"xfs|ext4|fuse.glusterfs"} - node_filesystem_avail_bytes) / node_filesystem_size_bytes > 80
+    for: 5m
+    labels:
+      serverity: warning
+    annotations:
+      summary: "{{$labels.instance}}: 检测到磁盘使用率高"
+      description: "{{$labels.instance}}, 挂载点 {{$labels.mountpoint}}: 磁盘已使用 {{ $value }}, 超过 80%"
+
+  - alert: slurm进程退出告警
+    expr: max by(cluster, job, instance, groupname) (delta(namedprocess_namegroup_oldest_start_time_seconds{groupname=~".*slurm.*"}[1d])) < 0
+    for: 15s
+    labels:
+      severity: emergency
+    annotations:
+      summary: "进程 {{$labels.groupname}} 已退出"
+      description: "{{$labels.ip}}: 进程 {{$labels.groupname}} 已退出"
+
+  - alert: glusterfs进程退出告警
+    expr:  max by(cluster, job, instance, groupname)(delta(namedprocess_namegroup_num_procs{groupname=~"/usr/sbin/gluster.*"}[1d]))<0
+    for: 15s
+    labels:
+      severity: emergency
+    annotations:
+      summary: "进程 {{$labels.groupname}} 已退出"
+      description: "{{$labels.ip}}: 进程 {{$labels.groupname}} 已退出"
+
+  # - alert: 进程重启告警
+  #   expr: ceil(time() - max by(cluster, job, instance, groupname) (namedprocess_namegroup_oldest_start_time_seconds)) < 60
+  #   for: 15s
+  #   labels:
+  #     label: alert_once
+  #     severity: warning
+  #   annotations:
+  #     summary: "进程 {{$labels.groupname}} 已退出"
+  #     description: "{{$labels.ip}}: 进程 {{ $labels.groupname }} 在 {{ $value }} 秒前发生重启"
+
+  # - alert: 挂载盘离线告警
+  #   expr: idelta(node_filesystem_avail_bytes{fstype=~"fuse.glusterfs"}[2d]) == 0
+  #   for: 25s
+  #   labels:
+  #     severity: high
+  #   annotations:
+  #     summary: "xxx"
+  #     description: "xxx"

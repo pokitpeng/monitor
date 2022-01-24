@@ -1,0 +1,76 @@
+version: '3.8'
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus_data: {}
+  prometheusalert_data: {}
+
+services:
+  grafana:
+    image: grafana/grafana:8.3.0
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: epc-cluster@ucloud
+      # GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+      # GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
+      # GF_AUTH_ANONYMOUS_ENABLED: "true"
+      # GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin" # default user and password: admin
+      # GF_AUTH_DISABLE_SIGNOUT_MENU: "true"
+      # GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:v2.29.1
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus  # db data
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=60d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - 9090:9090
+    networks:
+      - monitoring
+
+  alertmanager:
+    image: prom/alertmanager:v0.22.2
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/alertmanager.yml:/alertmanager.yml
+    command:
+      - "--config.file=/alertmanager.yml"
+    networks:
+      - monitoring
+
+  prometheusalert:
+    image: feiyu563/prometheus-alert
+    container_name: prometheusalert
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    volumes:
+      - ./prometheusalert/app.conf:/app/conf/app.conf
+      - prometheusalert_data:/app/db
+      - /etc/localtime:/etc/localtime
+    networks:
+      - monitoring

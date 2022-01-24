@@ -1,0 +1,141 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 15s
+  evaluation_interval: 10s
+
+rule_files:
+  - '/etc/prometheus/rules/*'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: 
+          - "alertmanager:9093"
+
+scrape_configs:
+  - job_name: "prometheus"
+    scrape_interval: 5s
+    static_configs:
+    - targets: ["localhost:9090"]
+
+  - job_name: "node-exporter"
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    static_configs:
+    - targets: ['10.23.1.117:9100']
+      labels:
+        ip: "10.23.1.117"
+        alias: slurm-primary
+    - targets: ['10.23.178.180:9100']
+      labels:
+        ip: "10.23.178.180"
+        alias: slurm-backup
+    - targets: ['10.23.117.145:9100']
+      labels:
+        ip: "10.23.117.145"
+        alias: slurm-node1
+    - targets: ['10.23.224.37:9100']
+      labels:
+        ip: "10.23.224.37"
+        alias: slurm-node2
+    - targets: ['10.23.164.147:9100']
+      labels:
+        ip: "10.23.164.147"
+        alias: slurm-node3
+    - targets: ['10.23.80.103:9100']
+      labels:
+        ip: "10.23.80.103"
+        alias: slurm-node4
+    - targets: ['10.23.179.212:9100']
+      labels:
+        ip: "10.23.179.212"
+        alias: gfs
+    - targets: ['10.23.229.2:9100']
+      labels:
+        ip: "10.23.229.2"
+        alias: gfs
+    - targets: ['10.23.144.16:9100']
+      labels:
+        ip: "10.23.144.16"
+        alias: gfs
+    # - targets:
+      # - "10.23.1.117:9100" # slurm-primary
+      # - "10.23.178.180:9100" # slurm-backup
+      # - "10.23.117.145:9100" # slurm-node1
+      # - "10.23.224.37:9100" # slurm-node2
+      # - "10.23.164.147:9100" # slurm-node3
+      # - "10.23.80.103:9100" # slurm-node4
+      # - "10.23.179.212:9100" # gfs
+      # - "10.23.229.2:9100" # gfs
+      # - "10.23.144.16:9100" # gfs
+
+  - job_name: 'process-exporter'
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    static_configs:
+    - targets: ['10.23.1.117:9256']
+      labels:
+        ip: "10.23.1.117"
+        alias: slurm-primary
+    - targets: ['10.23.178.180:9256']
+      labels:
+        ip: "10.23.178.180"
+        alias: slurm-backup
+    - targets: ['10.23.117.145:9256']
+      labels:
+        ip: "10.23.117.145"
+        alias: slurm-node1    
+    - targets: ['10.23.224.37:9256']
+      labels:
+        ip: "10.23.224.37"
+        alias: slurm-node2    
+    - targets: ['10.23.164.147:9256']
+      labels:
+        ip: "10.23.164.147"
+        alias: slurm-node3    
+    - targets: ['10.23.80.103:9256']
+      labels:
+        ip: "10.23.80.103"
+        alias: slurm-node4    
+    - targets: ['10.23.179.212:9256']
+      labels:
+        ip: "10.23.179.212"
+        alias: gfs   
+    - targets: ['10.23.229.2:9256']
+      labels:
+        ip: "10.23.229.2"
+        alias: gfs   
+    - targets: ['10.23.144.16:9256']
+      labels:
+        ip: "10.23.144.16"
+        alias: gfs
+    # - targets: 
+      # - "10.23.1.117:9256" # slurm-primary
+      # - "10.23.178.180:9256" # slurm-backup
+      # - "10.23.117.145:9256" # slurm-node1
+      # - "10.23.224.37:9256" # slurm-node2
+      # - "10.23.164.147:9256" # slurm-node3
+      # - "10.23.80.103:9256" # slurm-node4
+      # - "10.23.179.212:9256" # gfs
+      # - "10.23.229.2:9256" # gfs
+      # - "10.23.144.16:9256" # gfs
+
+  - job_name: 'slurm-exporter'
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    static_configs:
+    - targets: ['10.23.1.117:8080']
+      labels:
+        ip: "10.23.1.117"
+        alias: slurm-primary
+    # - targets: 
+    #   - "10.23.1.117:8080" # slurm-primary
+
+  - job_name: 'nvidia-gpu-exporter'
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    static_configs:
+    - targets: ['10.23.107.71:9835']
+      labels:
+        ip: "10.23.107.71"
+        alias: node6-gpu-v100s

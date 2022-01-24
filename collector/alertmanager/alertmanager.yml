@@ -1,0 +1,37 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.163.com:25'
+  smtp_from: 'xxx'
+  smtp_auth_username: 'xxx'
+  smtp_auth_password: 'xxx'
+  smtp_hello: 'xxx'
+  smtp_require_tls: false
+route:
+  group_by: ["alertname"]
+  group_wait: 15s	# 当收到告警的时候，等待指定时间看是否还有告警，如果有就一起发出去
+  group_interval: 30m	# 发送警告间隔时间
+  repeat_interval: 60m # 重复报警的间隔时间
+  receiver: prometheusalert	 # 全局报警组，这个参数是必选的，和下面报警组名要相同
+  routes:
+  - receiver: 'prometheusalert'
+    group_wait: 5s
+    match:
+      level: '1'
+receivers:
+- name: 'prometheusalert'
+  webhook_configs:
+  - url: 'http://prometheusalert:8080/prometheus/alert'
+# - name: 'feishu'
+  # webhook_configs:
+  # - url: 'http://prometheusalert:8080/prometheus/router?fsurl=https://open.feishu.cn/open-apis/bot/v2/hook/3a238098-30a7-41b8-9019-f4e07e3d8fc6'
+# - name: 'weixin'
+#   webhook_configs:
+#   - url: 'http://prometheusalert:8080/prometheus/router?wxurl=https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=b53b0e75-15e3-4bac-a4db-775dd83d05bc'
+- name: 'default'
+  email_configs:
+  - to: 'peng.peng@ucloud.cn'
+    send_resolved: true
+- name: 'email'
+  email_configs:
+  - to: 'peng.peng@ucloud.cn'
+    send_resolved: true
